@@ -1,74 +1,110 @@
-// --- DOM Elements ---
-const video = document.getElementById('video');
-const canvas = document.getElementById('canvas');
-const snapButton = document.getElementById('snap');
-const startCameraButton = document.getElementById('start-camera');
-const fileInput = document.getElementById('file-input');
-const resultImage = document.getElementById('result-image');
-const loader = document.getElementById('loader');
+document.addEventListener('DOMContentLoaded', () => {
+    // --- Socket.IO Connection ---
+    const socket = io();
 
-// --- Tab Switching Logic ---
-function showTab(tabId) {
-    document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-    document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
-    document.getElementById(tabId).classList.add('active');
-    event.currentTarget.classList.add('active');
-}
+    // --- DOM Elements ---
+    const video = document.getElementById('video');
+    const resultImage = document.getElementById('result-image');
+    const canvas = document.getElementById('canvas');
+    const startButton = document.getElementById('start-camera');
+    const stopButton = document.getElementById('stop-camera');
+    const messageBox = document.querySelector('#message-box p');
+    const downloadLink = document.getElementById('download-link');
 
-// --- API Call Helper ---
-async function sendImageToServer(data, headers = {}) {
-    loader.style.display = 'block';
-    resultImage.src = ""; // Clear previous image
-    try {
-        const response = await fetch('/predict', {
-            method: 'POST',
-            headers: headers,
-            body: data
+    let stream;
+    let intervalId;
+
+    // --- Chart.js Initialization ---
+    const ctx = document.getElementById('emotionChart').getContext('2d');
+    const emotionChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['angry', 'disgust', 'fear', 'happy', 'neutral', 'sad', 'surprise'],
+            datasets: [{
+                label: 'Emotion Count',
+                data: [0, 0, 0, 0, 0, 0, 0],
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.5)',
+                    'rgba(75, 192, 192, 0.5)',
+                    'rgba(153, 102, 255, 0.5)',
+                    'rgba(255, 206, 86, 0.5)',
+                    'rgba(201, 203, 207, 0.5)',
+                    'rgba(54, 162, 235, 0.5)',
+                    'rgba(255, 159, 64, 0.5)'
+                ],
+                borderColor: [
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(201, 203, 207, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 159, 64, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: { y: { beginAtZero: true, ticks: { color: '#fff' } }, x: { ticks: { color: '#fff' } } },
+            plugins: { legend: { display: false } }
+        }
+    });
+
+    // --- Functions ---
+    async function startCamera() {
+        try {
+            stream = await navigator.mediaDevices.getUserMedia({ video: true });
+            video.srcObject = stream;
+            video.style.display = 'block';
+            resultImage.style.display = 'none';
+
+            startButton.disabled = true;
+            stopButton.disabled = false;
+            downloadLink.classList.remove('disabled');
+
+            // Send frames to the server every 200ms
+            intervalId = setInterval(() => {
+                const context = canvas.getContext('2d');
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                context.drawImage(video, 0, 0, canvas.width, canvas.height);
+                const data = canvas.toDataURL('image/jpeg', 0.8);
+                socket.emit('image', data);
+            }, 200);
+        } catch (err) {
+            console.error("Error accessing camera: ", err);
+            alert("Could not access the camera. Please grant permission and try again.");
+        }
+    }
+
+    function stopCamera() {
+        if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+        }
+        clearInterval(intervalId);
+
+        video.style.display = 'none';
+        resultImage.style.display = 'block';
+        resultImage.src = "https://via.placeholder.com/640x480.png?text=Camera+Off";
+        
+        startButton.disabled = false;
+        stopButton.disabled = true;
+    }
+
+    // --- Event Listeners ---
+    startButton.addEventListener('click', startCamera);
+    stopButton.addEventListener('click', stopCamera);
+
+    // Listen for responses from the server
+    socket.on('response', (data) => {
+        resultImage.src = data.image;
+        messageBox.textContent = data.message;
+
+        // Update the chart
+        const chartData = emotionChart.data.datasets[0].data;
+        Object.keys(data.chart_data).forEach((emotion, index) => {
+            chartData[index] = data.chart_data[emotion];
         });
-        const result = await response.json();
-        resultImage.src = result.image;
-    } catch (error) {
-        console.error('Error:', error);
-        alert('An error occurred while processing the image.');
-    } finally {
-        loader.style.display = 'none';
-    }
-}
-
-// --- File Upload Logic ---
-fileInput.addEventListener('change', (event) => {
-    const file = event.target.files[0];
-    if (file) {
-        const formData = new FormData();
-        formData.append('file', file);
-        // No headers needed for FormData, browser sets it
-        sendImageToServer(formData);
-    }
-});
-
-// --- Camera Logic ---
-startCameraButton.addEventListener('click', async () => {
-    try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-        video.srcObject = stream;
-        snapButton.disabled = false;
-    } catch (err) {
-        console.error("Error accessing camera: ", err);
-        alert("Could not access the camera. Please ensure you have granted permission.");
-    }
-});
-
-snapButton.addEventListener('click', () => {
-    const context = canvas.getContext('2d');
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    context.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-    const dataURL = canvas.toDataURL('image/jpeg');
-    
-    // For JSON, we must set the Content-Type header
-    const headers = { 'Content-Type': 'application/json' };
-    const body = JSON.stringify({ image: dataURL });
-    
-    sendImageToServer(body, headers);
+        emotionChart.update();
+    });
 });
