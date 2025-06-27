@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emotion Detector</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>🧠 Emotion Detector</h1>
+        <p>Upload an image or use your camera to see the AI in action.</p>
+
+        <div class="tabs">
+            <button class="tab-button active" onclick="showTab('upload-tab')">Upload Image</button>
+            <button class="tab-button" onclick="showTab('camera-tab')">Live Camera</button>
+        </div>
+
+        <!-- Upload Tab -->
+        <div id="upload-tab" class="tab-content active">
+            <input type="file" id="file-input" accept="image/*">
+            <label for="file-input" class="file-label">Choose a file</label>
+        </div>
+
+        <!-- Camera Tab -->
+        <div id="camera-tab" class="tab-content">
+            <div class="camera-controls">
+                <button id="start-camera">Start Camera</button>
+                <button id="snap" disabled>Snap Photo</button>
+            </div>
+            <video id="video" width="640" height="480" autoplay></video>
+            <canvas id="canvas" style="display:none;"></canvas>
+        </div>
+
+        <div class="result-container">
+            <h2>Result</h2>
+            <div id="loader" class="loader" style="display:none;"></div>
+            <img id="result-image" src="" alt="Processed Image">
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
