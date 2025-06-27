@@ -18,11 +18,11 @@
                 <p>Real-Time Facial Expression Analysis</p>
             </div>
             <div class="video-container">
-                <video id="video" width="100%" height="auto" autoplay muted></video>
-                <img id="result-image" src="https://via.placeholder.com/640x480.png?text=Camera+Feed" alt="Processed Image">
+                <video id="video" autoplay muted playsinline></video>
+                <img id="result-image" src="https://via.placeholder.com/640x480/23272a/99aab5?text=Camera+is+Off" alt="Processed Image">
             </div>
             <div class="controls">
-                <button id="start-camera"><i class="fas fa-camera"></i> Start Camera</button>
+                <button id="start-camera"><i class="fas fa-camera"></i> Start Analysis</button>
                 <button id="stop-camera" class="stop-btn" disabled><i class="fas fa-stop-circle"></i> Stop Analysis</button>
             </div>
         </div>
@@ -32,7 +32,7 @@
             <div class="card message-card">
                 <h3><i class="fas fa-comment-dots"></i> AI Feedback</h3>
                 <div id="message-box">
-                    <p>Start the camera to begin analysis...</p>
+                    <p>Start the analysis to receive live feedback.</p>
                 </div>
             </div>
             <div class="card chart-card">
@@ -41,7 +41,7 @@
             </div>
             <div class="card log-card">
                 <h3><i class="fas fa-file-csv"></i> Session Log</h3>
-                <p>Your detected emotions are being logged.</p>
+                <p>Detected emotions are logged during the session.</p>
                 <a href="/download_csv" id="download-link" class="download-btn disabled">
                     <i class="fas fa-download"></i> Download Log (CSV)
                 </a>
