@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <rect width="1200" height="630" fill="#f9e79f"/>
+  <circle cx="320" cy="315" r="180" fill="#fffde7" stroke="#333" stroke-width="6"/>
+  <ellipse cx="260" cy="290" rx="32" ry="48" fill="#fff"/>
+  <ellipse cx="380" cy="290" rx="32" ry="48" fill="#fff"/>
+  <circle cx="260" cy="310" r="16" fill="#333"/>
+  <circle cx="380" cy="310" r="16" fill="#333"/>
+  <path d="M280 400 Q320 440 360 400" stroke="#333" stroke-width="8" fill="none" stroke-linecap="round"/>
+  <text x="500" y="340" font-size="80" font-family="Arial,sans-serif" fill="#333" font-weight="bold">Emotion AI</text>
+  <text x="500" y="420" font-size="40" font-family="Arial,sans-serif" fill="#666">Real-Time & Static Image Analysis</text>
+</svg>

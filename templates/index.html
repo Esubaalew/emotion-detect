@@ -4,36 +4,74 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Emotion AI Dashboard</title>
-    <!-- CSS -->
+    <meta name="description" content="Emotion AI Dashboard: Real-time and static image emotion detection using deep learning. Analyze faces, get motivational feedback, and download emotion logs.">
+    <meta name="keywords" content="emotion detection, AI, deep learning, face analysis, real-time, static image, dashboard, Flask, SocketIO">
+    <meta property="og:title" content="Emotion AI Dashboard">
+    <meta property="og:description" content="Real-time and static image emotion detection using deep learning.">
+    <meta property="og:image" content="{{ url_for('static', filename='og-image.svg') }}">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ request.url }}">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Emotion AI Dashboard">
+    <meta name="twitter:description" content="Real-time and static image emotion detection using deep learning.">
+    <meta name="twitter:image" content="{{ url_for('static', filename='og-image.svg') }}">
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='icon.svg') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <!-- Font Awesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <div class="dashboard-container">
-        <!-- Left Panel: Controls and Video Feed -->
+        <!-- Left Panel: Controls and Display -->
         <div class="left-panel">
             <div class="header">
                 <h1><i class="fas fa-brain"></i> Emotion AI</h1>
-                <p>Real-Time Facial Expression Analysis</p>
+                <p>Real-Time & Static Image Analysis</p>
             </div>
-            <div class="video-container">
-                <video id="video" autoplay muted playsinline></video>
-                <img id="result-image" src="https://images.pexels.com/photos/8727561/pexels-photo-8727561.jpeg" alt="Processed Image">
+
+            <!-- Tab Buttons -->
+            <div class="tabs">
+                <button class="tab-button active" data-tab="live-tab"><i class="fas fa-video"></i> Live Analysis</button>
+                <button class="tab-button" data-tab="static-tab"><i class="fas fa-image"></i> Static Image</button>
             </div>
-            <div class="controls">
-                <button id="start-camera"><i class="fas fa-camera"></i> Start Analysis</button>
-                <button id="stop-camera" class="stop-btn" disabled><i class="fas fa-stop-circle"></i> Stop Analysis</button>
+
+            <!-- Live Analysis Tab -->
+            <div id="live-tab" class="tab-content active">
+                <div class="video-container">
+                    <video id="video" autoplay muted playsinline></video>
+                    <img id="result-image-live" src="https://cdn.mos.cms.futurecdn.net/DMUbjq2UjJcG3umGv3Qjjd-1200-80.jpeg" alt="Live Processed Image">
+                </div>
+                <div class="controls">
+                    <button id="start-camera"><i class="fas fa-camera"></i> Start Camera</button>
+                    <button id="stop-camera" class="stop-btn" disabled><i class="fas fa-stop-circle"></i> Stop Camera</button>
+                </div>
             </div>
+
+            <!-- Static Image Tab -->
+            <div id="static-tab" class="tab-content">
+                <div class="static-input-container">
+                    <div class="upload-area">
+                        <label for="file-input" class="file-label"><i class="fas fa-upload"></i> Upload Image</label>
+                        <input type="file" id="file-input" accept="image/*">
+                    </div>
+                    <p class="or-divider">OR</p>
+                    <div class="url-area">
+                        <input type="text" id="url-input" placeholder="Paste image URL here...">
+                        <button id="url-submit-btn"><i class="fas fa-paper-plane"></i> Analyze</button>
+                    </div>
+                </div>
+                 <div class="video-container">
+                    <img id="result-image-static" src="https://cdn.mos.cms.futurecdn.net/DMUbjq2UjJcG3umGv3Qjjd-1200-80.jpeg" alt="Static Processed Image">
+                </div>
+            </div>
+            <div id="loader" class="loader" style="display:none;"></div>
         </div>
 
         <!-- Right Panel: Data and Insights -->
         <div class="right-panel">
-            <div class="card message-card">
+             <!-- This section remains the same -->
+             <div class="card message-card">
                 <h3><i class="fas fa-comment-dots"></i> AI Feedback</h3>
-                <div id="message-box">
-                    <p>Start the analysis to receive live feedback.</p>
-                </div>
+                <div id="message-box"><p>Select an analysis method to begin.</p></div>
             </div>
             <div class="card chart-card">
                 <h3><i class="fas fa-chart-bar"></i> Emotion Frequency</h3>
@@ -42,16 +80,13 @@
             <div class="card log-card">
                 <h3><i class="fas fa-file-csv"></i> Session Log</h3>
                 <p>Detected emotions are logged during the session.</p>
-                <a href="/download_csv" id="download-link" class="download-btn disabled">
-                    <i class="fas fa-download"></i> Download Log (CSV)
-                </a>
+                <a href="/download_csv" id="download-link" class="download-btn disabled"><i class="fas fa-download"></i> Download Log (CSV)</a>
             </div>
         </div>
     </div>
 
     <canvas id="canvas" style="display:none;"></canvas>
     
-    <!-- JavaScript Libraries -->
     <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="{{ url_for('static', filename='script.js') }}"></script>

@@ -26,32 +26,32 @@ body {
 }
 
 .left-panel, .right-panel {
-    padding: 30px;
+    padding: 20px;
     box-sizing: border-box;
 }
 
 .left-panel {
     flex: 2;
-    min-width: 500px;
+    min-width: 320px;
     display: flex;
     flex-direction: column;
 }
 
 .right-panel {
     flex: 1;
-    min-width: 350px;
+    min-width: 320px;
     background-color: var(--card-bg-color);
     border-left: 1px solid var(--border-color);
 }
 
 .header h1 {
-    font-size: 2.5rem;
+    font-size: 2rem;
     margin: 0;
     color: var(--primary-color);
 }
 .header h1 i { margin-right: 10px; }
 .header p {
-    font-size: 1.1rem;
+    font-size: 1rem;
     color: var(--text-muted-color);
     margin-top: 5px;
 }
@@ -65,32 +65,39 @@ body {
     background-color: #000;
     flex-grow: 1;
     aspect-ratio: 4 / 3;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
-#result-image { 
-    width: 100%; 
-    height: 100%; 
-    object-fit: cover; 
-    position: absolute;
-    top: 0;
-    left: 0;
+#result-image-live, #result-image-static {
+    display: block;
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    border-radius: 6px;
 }
 
 #video { 
-    /* The video is now always hidden, only used for capturing the stream */
     position: absolute;
-    z-index: -1; 
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: -1;
     opacity: 0;
 }
 
 .controls {
     margin-top: 20px;
     display: flex;
-    gap: 15px;
+    flex-wrap: wrap;
+    gap: 10px;
 }
 .controls button, .download-btn {
-    padding: 12px 25px;
-    font-size: 1rem;
+    padding: 10px 20px;
+    font-size: 0.9rem;
     cursor: pointer;
     border-radius: 5px;
     border: none;
@@ -101,6 +108,7 @@ body {
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    flex-grow: 1;
 }
 .controls button i, .download-btn i { margin-right: 8px; }
 
@@ -123,20 +131,160 @@ body {
     border-bottom: 1px solid var(--border-color);
     padding-bottom: 10px;
     font-weight: 400;
+    font-size: 1.2rem;
 }
 .card h3 i { margin-right: 10px; }
 
 #message-box p {
-    font-size: 1.1rem;
+    font-size: 1rem;
     color: var(--text-muted-color);
     min-height: 40px;
     line-height: 1.5;
 }
 
 .chart-card {
-    height: 300px;
+    height: 280px;
 }
 
-.download-btn { background-color: var(--primary-color); }
+.download-btn { background-color: var(--primary-color); flex-grow: 0; }
 .download-btn:hover { background-color: #357abd; }
 .download-btn.disabled { background-color: #5a6268; pointer-events: none; opacity: 0.6; }
+
+.tabs {
+    display: flex;
+    border-bottom: 2px solid var(--border-color);
+    margin-bottom: 20px;
+}
+.tab-button {
+    background: none;
+    border: none;
+    color: var(--text-muted-color);
+    padding: 10px 15px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    border-bottom: 3px solid transparent;
+    flex-grow: 1;
+    text-align: center;
+}
+.tab-button.active {
+    color: var(--primary-color);
+    border-bottom-color: var(--primary-color);
+}
+.tab-content:not(.active) {
+    display: none;
+}
+
+.static-input-container {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 15px;
+    margin-bottom: 20px;
+    background-color: var(--card-bg-color);
+    padding: 20px;
+    border-radius: 8px;
+}
+.file-label {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 12px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    text-align: center;
+}
+.file-label:hover {
+    background-color: #357abd;
+}
+#file-input { display: none; }
+.or-divider { color: var(--text-muted-color); font-weight: bold; text-align: center; }
+.url-area { display: flex; }
+#url-input {
+    padding: 12px;
+    border: 1px solid var(--border-color);
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    border-radius: 5px 0 0 5px;
+    flex-grow: 1;
+    min-width: 0;
+}
+#url-submit-btn {
+    padding: 12px 20px;
+    border: none;
+    background-color: var(--success-color);
+    color: white;
+    cursor: pointer;
+    border-radius: 0 5px 5px 0;
+}
+
+.loader {
+    border: 5px solid #f3f3f3;
+    border-top: 5px solid var(--primary-color);
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 1s linear infinite;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10;
+}
+@keyframes spin {
+    0% { transform: translate(-50%, -50%) rotate(0deg); }
+    100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* ============================================= */
+/* ---        RESPONSIVE MEDIA QUERIES       --- */
+/* ============================================= */
+
+/* For tablets and smaller devices */
+@media (max-width: 992px) {
+    .dashboard-container {
+        flex-direction: column;
+    }
+
+    .right-panel {
+        border-left: none;
+        border-top: 2px solid var(--border-color);
+    }
+    
+    .loader {
+        /* Re-center the loader for a single column layout */
+        left: 50%;
+        transform: translateX(-50%);
+    }
+}
+
+/* For mobile phones */
+@media (max-width: 576px) {
+    .left-panel, .right-panel {
+        padding: 15px;
+    }
+
+    .header h1 {
+        font-size: 1.8rem;
+    }
+
+    .header p {
+        font-size: 0.9rem;
+    }
+
+    .controls button, .download-btn {
+        width: 100%;
+    }
+
+    .static-input-container {
+        padding: 15px;
+    }
+
+    #url-input {
+        font-size: 0.9rem;
+    }
+
+    .tab-button i {
+        margin-right: 5px;
+    }
+}
