@@ -6,3 +6,4 @@ numpy
 Flask-SocketIO
 eventlet
 requests
+Gunicorn
